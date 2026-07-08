@@ -2,6 +2,7 @@ import { ShieldCheck } from "lucide-react";
 import { AppSettings } from "@/types";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Card,
@@ -47,6 +48,9 @@ export function GatewayTabContent({
   upstreamProxyInput,
   upstreamProxyDraft,
   setUpstreamProxyDraft,
+  upstreamProxyBypassInput,
+  upstreamProxyBypassDraft,
+  setUpstreamProxyBypassDraft,
 }: {
   t: (value: string) => string;
   snapshot: AppSettings;
@@ -87,6 +91,9 @@ export function GatewayTabContent({
   upstreamProxyInput: string;
   upstreamProxyDraft: string | null;
   setUpstreamProxyDraft: React.Dispatch<React.SetStateAction<string | null>>;
+  upstreamProxyBypassInput: string;
+  upstreamProxyBypassDraft: string | null;
+  setUpstreamProxyBypassDraft: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   return (
     <Card className="glass-card mission-panel shadow-sm">
@@ -322,6 +329,31 @@ export function GatewayTabContent({
             }}
           />
           <p className="text-[10px] text-muted-foreground">{t("支持 http/https/socks5，留空表示直连。")}</p>
+        </div>
+
+        <div className="grid gap-2">
+          <Label>{t("代理 Bypass 域名")}</Label>
+          <Textarea
+            placeholder={t("留空表示不绕过代理")}
+            className="min-h-24 max-w-2xl resize-y font-mono text-sm"
+            value={upstreamProxyBypassInput}
+            onChange={(event) => setUpstreamProxyBypassDraft(event.target.value)}
+            onBlur={() => {
+              if (upstreamProxyBypassDraft == null) return;
+              if (upstreamProxyBypassInput === (snapshot.upstreamProxyBypassHosts || "")) {
+                setUpstreamProxyBypassDraft(null);
+                return;
+              }
+              void updateSettings
+                .mutateAsync({ upstreamProxyBypassHosts: upstreamProxyBypassInput })
+                .then(() => setUpstreamProxyBypassDraft(null))
+                .catch(() => undefined);
+            }}
+          />
+          <p className="text-[10px] text-muted-foreground">
+            {t("一行一个或用逗号分隔；命中的上游域名会绕过全局代理直连。支持精确域名和")} <code>*.</code>
+            {t("通配。")}
+          </p>
         </div>
 
         <div className="grid gap-4 border-t pt-6 md:grid-cols-3">

@@ -859,7 +859,6 @@ pub(in super::super) fn proxy_aggregate_request(
         return Ok(());
     }
 
-    let client = super::super::super::upstream_client();
     let mut request = Some(request);
     let mut attempted_aggregate_api_ids = Vec::new();
     let mut last_attempt_url: Option<String> = None;
@@ -879,6 +878,7 @@ pub(in super::super) fn proxy_aggregate_request(
             aggregate_upstream_model_for_log(&candidate, model_for_log).map(str::to_string);
         let candidate_supplier_name = candidate.supplier_name.clone();
         let candidate_url = candidate.url.clone();
+        let client = super::super::super::upstream_client_for_aggregate_url(candidate.url.as_str());
         last_attempt_id = Some(candidate_id.clone());
         last_attempt_upstream_model = candidate_upstream_model.clone();
         let Some(secret) = secrets_by_candidate_id.get(candidate.id.as_str()) else {
