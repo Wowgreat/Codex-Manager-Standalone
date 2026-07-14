@@ -23,6 +23,29 @@ const MODEL_SOURCE_KIND_CUSTOM: &str = "custom";
 const ROUTING_SOURCE_KIND_OPENAI_ACCOUNT: &str = "openai_account";
 const ROUTING_SOURCE_KIND_AGGREGATE_API: &str = "aggregate_api";
 const PREF_UNLINKED: &str = "unlinked";
+const CURATED_GPT_56_MODEL_SLUGS: &[(&str, &str, &str)] = &[
+    (
+        "gpt-5.6",
+        "GPT-5.6",
+        "Alias for GPT-5.6 Sol, the flagship GPT-5.6 model.",
+    ),
+    (
+        "gpt-5.6-sol",
+        "GPT-5.6 Sol",
+        "Flagship GPT-5.6 model for frontier capability.",
+    ),
+    (
+        "gpt-5.6-terra",
+        "GPT-5.6 Terra",
+        "Balanced GPT-5.6 model for strong performance at lower cost.",
+    ),
+    (
+        "gpt-5.6-luna",
+        "GPT-5.6 Luna",
+        "Efficient GPT-5.6 model for high-volume workloads.",
+    ),
+];
+const CURATED_GPT_56_REASONING_LEVELS: &[&str] = &["none", "low", "medium", "high", "xhigh", "max"];
 
 /// 函数 `read_model_options`
 ///
@@ -1248,7 +1271,7 @@ fn merge_managed_model_catalog(
     incoming: ModelsResponse,
 ) -> ManagedModelCatalogResult {
     let cached = normalize_managed_model_catalog(cached);
-    let incoming = normalize_models_response(incoming);
+    let incoming = with_curated_gpt_56_models(normalize_models_response(incoming));
     if cached.items.is_empty() {
         let ModelsResponse {
             models: incoming_models,
@@ -1324,6 +1347,48 @@ fn merge_managed_model_catalog(
         items: merged_items,
         extra: merge_extra_maps(cached.extra, incoming_extra),
     })
+}
+
+fn with_curated_gpt_56_models(mut response: ModelsResponse) -> ModelsResponse {
+    if response.models.is_empty() {
+        return response;
+    }
+
+    let mut seen = response
+        .models
+        .iter()
+        .map(|model| model.slug.clone())
+        .collect::<HashSet<_>>();
+    for (slug, display_name, description) in CURATED_GPT_56_MODEL_SLUGS {
+        if seen.insert((*slug).to_string()) {
+            response
+                .models
+                .push(curated_gpt_56_model(slug, display_name, description));
+        }
+    }
+    normalize_models_response(response)
+}
+
+fn curated_gpt_56_model(slug: &str, display_name: &str, description: &str) -> ModelInfo {
+    ModelInfo {
+        slug: slug.to_string(),
+        display_name: display_name.to_string(),
+        description: Some(description.to_string()),
+        default_reasoning_level: Some("medium".to_string()),
+        supported_reasoning_levels: CURATED_GPT_56_REASONING_LEVELS
+            .iter()
+            .map(|effort| ModelReasoningLevel {
+                effort: (*effort).to_string(),
+                description: String::new(),
+                extra: BTreeMap::new(),
+            })
+            .collect(),
+        visibility: Some("list".to_string()),
+        supported_in_api: true,
+        input_modalities: default_input_modalities(),
+        supports_image_detail_original: Some(true),
+        ..Default::default()
+    }
 }
 
 pub(crate) fn normalize_models_response(response: ModelsResponse) -> ModelsResponse {

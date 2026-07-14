@@ -57,6 +57,11 @@ const DEFAULT_FREE_ACCOUNT_MAX_MODEL_OPTIONS: &[&str] = &[
     "gpt-5.3-codex",
     "gpt-5.4-mini",
     "gpt-5.4",
+    "gpt-5.5",
+    "gpt-5.6",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-5.6-luna",
 ];
 
 /// 函数 `normalize_service_bind_mode_value`

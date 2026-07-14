@@ -22,6 +22,10 @@ fn free_account_max_model_options_fallback_to_curated_defaults() {
         .map(|item| (*item).to_string())
         .collect::<Vec<_>>();
     assert_eq!(actual, expected);
+    assert!(actual.contains(&"gpt-5.6".to_string()));
+    assert!(actual.contains(&"gpt-5.6-sol".to_string()));
+    assert!(actual.contains(&"gpt-5.6-terra".to_string()));
+    assert!(actual.contains(&"gpt-5.6-luna".to_string()));
 }
 
 /// 函数 `free_account_max_model_options_reuse_cached_model_picker_options`

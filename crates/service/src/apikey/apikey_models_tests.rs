@@ -809,14 +809,20 @@ fn merge_managed_catalog_preserves_user_edited_entries_when_remote_refreshes() {
     };
 
     let merged = merge_managed_model_catalog(cached, incoming);
-    assert_eq!(merged.items.len(), 1);
-    assert_eq!(merged.items[0].model.display_name, "GPT-5.4 Local");
+    assert_eq!(merged.items.len(), 5);
+    let gpt_54 = merged
+        .items
+        .iter()
+        .find(|item| item.model.slug == "gpt-5.4")
+        .expect("gpt-5.4 should be present");
+    assert_eq!(gpt_54.model.display_name, "GPT-5.4 Local");
     assert_eq!(
-        merged.items[0].model.description.as_deref(),
+        gpt_54.model.description.as_deref(),
         Some("keep local override")
     );
-    assert_eq!(merged.items[0].source_kind, MODEL_SOURCE_KIND_REMOTE);
-    assert!(merged.items[0].user_edited);
+    assert_eq!(gpt_54.source_kind, MODEL_SOURCE_KIND_REMOTE);
+    assert!(gpt_54.user_edited);
+    assert!(merged.items.iter().any(|item| item.model.slug == "gpt-5.6"));
 }
 
 #[test]
@@ -868,7 +874,72 @@ fn merge_managed_catalog_preserves_unedited_remote_entries_missing_from_remote()
             .iter()
             .map(|item| item.model.slug.as_str())
             .collect::<Vec<_>>(),
-        vec!["gpt-current", "gpt-stale", "gpt-custom"]
+        vec![
+            "gpt-current",
+            "gpt-5.6",
+            "gpt-5.6-sol",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna",
+            "gpt-stale",
+            "gpt-custom"
+        ]
+    );
+}
+
+#[test]
+fn merge_managed_catalog_adds_curated_gpt_56_models_when_remote_lags() {
+    let cached = ManagedModelCatalogResult {
+        items: vec![ManagedModelCatalogEntry {
+            model: serde_json::from_value(json!({
+                "slug": "gpt-5.5",
+                "display_name": "GPT-5.5",
+                "supported_in_api": true
+            }))
+            .expect("parse cached model"),
+            source_kind: MODEL_SOURCE_KIND_REMOTE.to_string(),
+            user_edited: false,
+            sort_index: 0,
+            updated_at: 10,
+        }],
+        extra: BTreeMap::new(),
+    };
+    let incoming = ModelsResponse {
+        models: vec![serde_json::from_value(json!({
+            "slug": "gpt-5.4",
+            "display_name": "GPT-5.4",
+            "supported_in_api": true
+        }))
+        .expect("parse incoming model")],
+        extra: BTreeMap::new(),
+    };
+
+    let merged = merge_managed_model_catalog(cached, incoming);
+    let slugs = merged
+        .items
+        .iter()
+        .map(|item| item.model.slug.as_str())
+        .collect::<Vec<_>>();
+
+    assert!(slugs.contains(&"gpt-5.6"));
+    assert!(slugs.contains(&"gpt-5.6-sol"));
+    assert!(slugs.contains(&"gpt-5.6-terra"));
+    assert!(slugs.contains(&"gpt-5.6-luna"));
+    let gpt_56 = merged
+        .items
+        .iter()
+        .find(|item| item.model.slug == "gpt-5.6")
+        .expect("gpt-5.6 should be present");
+    assert_eq!(gpt_56.model.display_name, "GPT-5.6");
+    assert!(gpt_56.model.supported_in_api);
+    assert_eq!(gpt_56.model.visibility.as_deref(), Some("list"));
+    assert_eq!(
+        gpt_56
+            .model
+            .supported_reasoning_levels
+            .iter()
+            .map(|level| level.effort.as_str())
+            .collect::<Vec<_>>(),
+        vec!["none", "low", "medium", "high", "xhigh", "max"]
     );
 }
 
