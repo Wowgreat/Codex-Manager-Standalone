@@ -1,181 +1,95 @@
-# Documentation Index
+# CodexManager User Guide
 
-`docs/` is the official long-form documentation directory for CodexManager.
+[中文](../../README.md) · [Русский](../ru/README.md) · [한국어](../ko/README.md)
 
-Its purpose is simple:
-- Keep governance notes, release guides, and operating manuals inside the repository.
-- Make it easy for new contributors to find the right document without relying on tribal knowledge.
+CodexManager is a local account-management and OpenAI-compatible gateway. It manages authorized accounts, platform API keys, model catalogs, and third-party Aggregate API upstreams, then exposes a local API for your clients.
 
-## Project Snapshot
+## 1. Install and start (Windows)
 
-CodexManager is a local desktop + service-process account pool manager and gateway relay for Codex workflows.
+Download one asset from [Releases](https://github.com/qxcnm/Codex-Manager/releases):
 
-- Unified account, usage, and platform-key management.
-- Local OpenAI-compatible gateway for Codex CLI, Gemini CLI, Claude Code, and third-party tools.
-- Supports account routing, model/profile overrides, and aggregate API upstream relays.
+- `CodexManager_<version>_x64-setup.exe`: installer edition.
+- `CodexManager-portable.exe`: portable edition; place it in any writable folder and run it.
 
-## Feature Overview
+After first launch, check the local service status. The default service address is `localhost:48760`. Unless you changed it in Settings, configure clients with `http://localhost:48760/v1`.
 
-- Account pool management: groups, tags, ordering, notes, ban recognition, and filtering.
-- Batch import/export: multi-file import, desktop recursive folder import, per-account export.
-- Usage display: 5-hour + 7-day windows, single-window accounts, and official extra buckets such as Code Review / Spark.
-- Platform keys: create, disable, delete, model binding, reasoning tier, and service tier.
-- Aggregate API: create/edit/test third-party relay upstreams with supplier naming and priority ordering.
-- Plugin center: built-in, private, and custom source modes with task/log views and Rhai integration.
-- Local service + gateway: custom bind/listen settings, upstream proxy, total request timeout, stream idle timeout, SSE keepalive, and a unified compatible endpoint.
-- Image generation: automatically injects the official Codex `image_generation` tool for `/v1/responses` by default, forwards explicit tools unchanged, and exposes compatible `/v1/images/generations` and `/v1/images/edits` endpoints with `gpt-image-2` as the default image tool model.
+## 2. Authorize an account
 
-## Quick Start
+1. Start the service from the home page; the gateway cannot serve requests while it is stopped.
+2. Open **Account Management**, add an account, and finish browser authorization.
+3. If the callback is not recognized automatically, paste its callback URL into the app for manual parsing.
+4. Refresh usage and account status. Confirm the account is available before creating a platform key.
 
-1. Launch desktop app and click **Start Service**.
-2. Open **Account Management** and complete account authorization.
-3. If callback parsing fails, paste the callback URL for manual parsing.
-4. Refresh usage and verify account status.
+Accounts, authorization callbacks, and exported account data are sensitive. Never share them or commit them to a repository.
 
-## Screenshots
+## 3. Create a platform API key and connect a client
 
-![Dashboard](../../assets/images/dashboard.png)
-![Account Management](../../assets/images/accounts.png)
-![Platform Key](../../assets/images/platform-key.png)
-![Aggregate API](../../assets/images/aggregate-api.png)
-![Plugin Center](../../assets/images/plug.png)
-![Log View](../../assets/images/log.png)
-![Settings](../../assets/images/themes.png)
+1. Open **Platform Keys**, create a key, and select permitted models and reasoning levels when needed.
+2. Configure your client:
 
-## Scope
-- Root `README.md` and localized `docs/*/README.md`: project overview and quick start.
-- Root `CHANGELOG.md`: version history and unreleased changes.
-- `report/*`: operations, troubleshooting, compatibility notes, and FAQs.
-- `release/*`: build, packaging, release, and artifact documentation.
+   ```text
+   Base URL: http://localhost:48760/v1
+   API Key: <your-platform-key>
+   Authorization: Bearer <your-platform-key>
+   ```
 
-## Start here
-- For the latest release notes, see [CHANGELOG.md](CHANGELOG.md).
-- If you are not sure which document to open first, use the table below.
+3. The primary compatible endpoints are:
 
-## Sponsors
+   - `POST /v1/responses`
+   - `POST /v1/chat/completions`
 
-Thanks to the following sponsors for supporting CodexManager.
+The key above is a placeholder. Do not put real keys in screenshots, chats, templates, or public repositories.
 
-<table>
-  <tr>
-    <td align="center" valign="middle" width="180">
-      <a href="https://www.aixiamo.com/?utm_source=github&utm_medium=sponsor&utm_campaign=codex_manager">
-        <img src="../../assets/images/sponsors/aixiamo.jpg" alt="AI夏末 AIXiamo" width="120" />
-      </a>
-    </td>
-    <td valign="top">
-      Thanks to <strong>AI夏末 AIXiamo</strong> for sponsoring this project! <strong>AIXiamo</strong> serves developer workflows such as Codex CLI, Claude Code, and Gemini CLI, providing AI membership activation and after-sales assistance for ChatGPT Pro 5x / 20x, ChatGPT Plus, Claude Max, Gemini Pro, Grok, and more. It supports Alipay and WeChat Pay, automatic top-ups, order lookup, tutorials, and after-sales support. It is suitable for developers who need stable access for AI programming, code generation, document processing, and frequent conversations. CodexManager users can get priority consultation for Pro / Codex / Claude / Gemini plan selection. Visit the <a href="https://www.aixiamo.com/?utm_source=github&utm_medium=sponsor&utm_campaign=codex_manager">official site</a> to view services.
-    </td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle" width="180">
-      <a href="https://apikey.fun/register?aff=Codex-Manager">
-        <img src="../../assets/images/sponsors/APIKey.Fun.png" alt="APIKEY.FUN" width="120" />
-      </a>
-    </td>
-    <td valign="top">
-      Thanks to <strong>APIKEY.FUN</strong> for sponsoring this project! APIKEY.FUN is a professional enterprise-grade AI API gateway dedicated to providing stable, efficient, and low-cost AI model API access for businesses and individual developers. The platform supports popular mainstream models including Claude, OpenAI, and Gemini, with pricing as low as 7% of the official price. Register through this project's <a href="https://apikey.fun/register?aff=Codex-Manager">exclusive link</a> to receive an exclusive benefit of up to <strong>permanent 5% off top-ups</strong>.
-    </td>
-  </tr>
-  <tr>
-    <td align="center" valign="middle" width="180">
-      <a href="https://gzxsy.vip/register?aff=eapz">
-        <img src="../../assets/images/sponsors/xingsiyan.jpg" alt="Xing Si Yan Gateway" width="120" />
-      </a>
-    </td>
-    <td valign="top">
-      <strong>Xing Si Yan Gateway</strong> provides stable relay and supporting services for Claude Code, Codex, and similar model-call scenarios. It is suitable for developers and teams that require highly available APIs, convenient onboarding, and continuous delivery support. Visit the <a href="https://gzxsy.vip/register?aff=eapz">official site</a> for the latest plans.
-    </td>
-  </tr>
-</table>
+## 4. Select GPT-5.6 models
 
-Other supporters: [Wonderdch](https://github.com/Wonderdch), [suxinwl](https://github.com/suxinwl), [Hermit](https://github.com/HermitChen), [Suifeng023](https://github.com/Suifeng023), [HK-hub](https://github.com/HK-hub)
+The **Models** page and platform-key configuration show the catalog allowed by your account.
 
-## Ecosystem Pairing
-
-### OpenCowork
-
-- Repository: [AIDotNet/OpenCowork](https://github.com/AIDotNet/OpenCowork)
-- Recommended pairing: use OpenCowork for local file operations, multi-agent execution, workplace messaging, and desktop automation, while CodexManager handles Codex account management, usage tracking, platform keys, and the local gateway entry point.
-- Best for: teams that want to separate the execution workspace and office integration from account-pool management and gateway access.
-- A simple way to think about it: **OpenCowork executes in the real workspace, CodexManager manages accounts and gateway access.**
-
-## Quick navigation
-| What you need | Open this document |
+| Display name | Model slug |
 | --- | --- |
-| First launch, deployment, Docker, macOS allowlisting | [Runtime and Deployment Guide](report/runtime-and-deployment-guide.md) |
-| Configure Codex CLI / ccswitch `auth.json` and `config.toml` | [Runtime and Deployment Guide](report/runtime-and-deployment-guide.md#connect-through-ccswitch) |
-| Environment variables, database, ports, proxy, listen address | [Environment and Runtime Configuration](report/environment-and-runtime-config.md) |
-| Account routing, import errors, challenge interception | [FAQ and Account Routing Rules](report/faq-and-account-routing-rules.md) |
-| Why background jobs skip or disable accounts | [Background Task Account Skip Notes](report/background-task-account-skip-notes.md) |
-| Minimum plugin marketplace integration | [Plugin Center Minimal Integration](report/plugin-center-minimal-integration.md) |
-| Internal commands and integration surfaces | [System Internal Interface Inventory](report/system-internal-interface-inventory.md) |
-| Local build, packaging, and release scripts | [Build, Release, and Script Guide](release/build-release-and-scripts.md) |
+| GPT-5.6 (alias of GPT-5.6 Sol) | `gpt-5.6` |
+| GPT-5.6 Sol | `gpt-5.6-sol` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| GPT-5.6 Luna | `gpt-5.6-luna` |
 
-## Directory guide
+Reasoning levels are `none`, `low`, `medium`, `high`, `xhigh`, and `max`. A model listed in the catalog is not a guarantee of API access: visibility, API availability, and supported reasoning levels depend on your account and the request result.
 
-### `release/`
-Release notes, rollback notes, artifact descriptions, and packaging guides.
+## 5. Configure an Aggregate API upstream
 
-### `report/`
-Operational guides, troubleshooting notes, compatibility reports, and FAQs.
+Use Aggregate API to connect a compatible third-party upstream.
 
-## Recommended reading
+1. Open **Aggregate API**, add an upstream, and enter its name, address, and upstream key.
+2. Use a generic base URL such as `https://api.example.com`; do not append `/v1`. The gateway appends the client path, so including `/v1` can create `/v1/v1/...`.
+3. Test the connection in the app, then configure model mappings and priority.
+4. Map required models to the upstream. When more than one upstream serves a model, priority determines selection.
 
-### Operations
-| Document | Summary |
-| --- | --- |
-| [Runtime and Deployment Guide](report/runtime-and-deployment-guide.md) | Desktop first launch, Service edition, Docker, and macOS first-run handling |
-| [Environment and Runtime Configuration](report/environment-and-runtime-config.md) | Runtime configuration, defaults, and environment variables |
-| [FAQ and Account Routing Rules](report/faq-and-account-routing-rules.md) | Common account-routing issues and troubleshooting tips |
-| [Gateway vs Official Codex Params](report/gateway-vs-codex-official-params.md) | Current outbound parameter differences compared with official Codex |
-| [Background Task Account Skip Notes](report/background-task-account-skip-notes.md) | Why background jobs skip, cool down, or disable accounts |
-| [Minimal Troubleshooting Guide](report/minimal-troubleshooting-guide.md) | Fast checks for the most common startup and relay issues |
-| [Plugin Center Minimal Integration](report/plugin-center-minimal-integration.md) | Minimum fields and interfaces required for plugin marketplace access |
-| [Gateway vs Codex Headers and Params](report/gateway-vs-codex-headers-and-params.md) | Header and request parameter differences between the gateway and Codex |
-| [Plugin Center Integration and Interfaces](report/plugin-center-integration-and-interfaces.md) | Marketplace modes, RPC/Tauri commands, manifest fields, and Rhai interfaces |
-| [System Internal Interface Inventory](report/system-internal-interface-inventory.md) | Internal commands, RPC endpoints, and built-in plugin functions |
+Treat upstream keys as secrets and keep them only in local application settings.
 
-### Build and release
-| Document | Summary |
-| --- | --- |
-| [Build, Release, and Script Guide](release/build-release-and-scripts.md) | Local builds, script parameters, and GitHub workflow entry points |
-| [Release and Artifacts](release/release-and-artifacts.md) | Release artifacts, naming, and publication rules |
-| [Script and Release Responsibility Matrix](report/script-and-release-responsibility-matrix.md) | Which script or workflow is responsible for which task |
+## 6. Proxy and network settings
 
-## Contribution rules
+In **Settings**, configure the upstream proxy, request timeouts, and SSE keepalive. Use **Proxy Bypass Domains** for upstream domains that must connect directly; it is separate from the upstream proxy setting.
 
-### Commit documentation when it
-- remains useful for future contributors,
-- affects development, testing, release, or troubleshooting,
-- or serves as a long-term source of truth.
+The gateway is intended for local use by default. Before exposing it to a LAN or the Internet, require platform keys and restrict access with a firewall, reverse proxy, or equivalent network controls. Never expose an unauthenticated gateway publicly.
 
-### Do not commit documentation when it is
-- a temporary draft,
-- personal working notes,
-- a disposable intermediate file,
-- or a local-only experiment record.
+## 7. Troubleshooting
 
-## Ignored patterns
-- `docs/**/*.tmp.md`
-- `docs/**/*.local.md`
+**The client cannot connect:** confirm the service is running, the Base URL is `http://localhost:48760/v1`, and the port is not blocked.
 
-Do not use those suffixes for formal documentation.
+**401 or permission error:** use a platform key rather than an upstream key; check that the key is enabled and permits the requested model.
 
-## Naming
+**A model is missing or fails:** refresh account status and the model catalog. Availability is account-dependent.
 
-```text
-Long-lived documents: topic.md
-One-off reports: yyyyMMddHHmmssfff_topic.md
+**Aggregate API builds the wrong URL:** remove a duplicated `/v1` from the generic upstream URL and run the connection test again.
+
+## 8. Build from source (Windows)
+
+Install Rust, Node.js, pnpm, and PowerShell 7 (`pwsh`). From the repository root, run:
+
+```powershell
+pwsh -NoLogo -NoProfile -File scripts/rebuild.ps1 -Bundle nsis -CleanDist -Portable
 ```
 
-## Maintenance notes
-- Add important governance material under `docs/` instead of expanding the README indefinitely.
-- Keep version history in `CHANGELOG.md`.
-- Keep architecture notes in `ARCHITECTURE.md`.
-- Keep collaboration rules in `CONTRIBUTING.md`.
-- Put unreleased change details in `CHANGELOG.md`; keep the README focused on navigation and summary.
+The installer is placed in the Tauri bundle output. The portable executable is `portable/CodexManager-portable.exe`.
 
-## Contact
-- WeChat: add `ProsperGao` to join the group, and please mention your purpose
-- Telegram group: [CodexManager TG group](https://t.me/+OdpFa9GvjxhjMDhl)
+## Safety and disclaimer
+
+This project is for learning and development. Follow the terms of each upstream platform; do not use it to bypass service or rate limits. You are responsible for your accounts, API keys, proxies, and network exposure.
