@@ -6,7 +6,7 @@ CodexManager 是一个本地账号管理与 OpenAI 兼容网关工具。它可�
 
 ## 1. 安装与启动（Windows）
 
-在 [Releases](https://github.com/qxcnm/Codex-Manager/releases) 下载其一：
+在当前仓库的 [Releases](../../releases) 下载其一：
 
 - `CodexManager_<version>_x64-setup.exe`：安装版，按安装程序提示完成安装。
 - `CodexManager-portable.exe`：便携版，解压或复制到任意可写目录后直接运行。

@@ -6,7 +6,7 @@ CodexManager is a local account-management and OpenAI-compatible gateway. It man
 
 ## 1. Install and start (Windows)
 
-Download one asset from [Releases](https://github.com/qxcnm/Codex-Manager/releases):
+Download one asset from this repository's [Releases](../../../../releases):
 
 - `CodexManager_<version>_x64-setup.exe`: installer edition.
 - `CodexManager-portable.exe`: portable edition; place it in any writable folder and run it.

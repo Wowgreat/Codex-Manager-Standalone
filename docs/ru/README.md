@@ -6,7 +6,7 @@ CodexManager — локальный менеджер аккаунтов и OpenA
 
 ## 1. Установка и запуск (Windows)
 
-Загрузите один файл из [Releases](https://github.com/qxcnm/Codex-Manager/releases):
+Загрузите один файл со страницы [Releases](../../../../releases) текущего репозитория:
 
 - `CodexManager_<version>_x64-setup.exe` — версия с установщиком.
 - `CodexManager-portable.exe` — portable-версия; поместите файл в любую доступную для записи папку и запустите.

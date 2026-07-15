@@ -6,7 +6,7 @@ CodexManager는 로컬 계정 관리 및 OpenAI 호환 게이트웨이입니다.
 
 ## 1. 설치 및 시작 (Windows)
 
-[Releases](https://github.com/qxcnm/Codex-Manager/releases)에서 다음 중 하나를 받으세요.
+현재 저장소의 [Releases](../../../../releases)에서 다음 중 하나를 받으세요.
 
 - `CodexManager_<version>_x64-setup.exe`: 설치형 버전입니다.
 - `CodexManager-portable.exe`: 포터블 버전입니다. 쓰기 가능한 폴더에 두고 바로 실행하세요.
