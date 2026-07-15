@@ -90,6 +90,10 @@ pwsh -NoLogo -NoProfile -File scripts/rebuild.ps1 -Bundle nsis -CleanDist -Porta
 
 설치 프로그램은 Tauri bundle output에, 포터블 실행 파일은 `portable/CodexManager-portable.exe`에 생성됩니다.
 
+## 감사의 말
+
+이 프로젝트는 [qxcnm/Codex-Manager](https://github.com/qxcnm/Codex-Manager)의 오픈 소스 작업을 이어 받아 맞춤화한 것입니다. 원작자와 모든 커뮤니티 기여자에게 감사드립니다.
+
 ## 보안 및 면책 조항
 
 이 프로젝트는 학습과 개발을 위한 것입니다. 각 업스트림 플랫폼의 약관을 준수하고 서비스 또는 rate limit을 우회하는 용도로 사용하지 마세요. 계정, API 키, 프록시, 네트워크 노출 방식에 대한 책임은 사용자에게 있습니다.

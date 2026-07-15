@@ -90,6 +90,10 @@ pwsh -NoLogo -NoProfile -File scripts/rebuild.ps1 -Bundle nsis -CleanDist -Porta
 
 Установщик будет в Tauri bundle output, а portable-файл — `portable/CodexManager-portable.exe`.
 
+## Благодарности
+
+Этот проект продолжает и адаптирует открытую работу [qxcnm/Codex-Manager](https://github.com/qxcnm/Codex-Manager). Благодарность первоначальному автору и всем участникам сообщества.
+
 ## Безопасность и отказ от ответственности
 
 Проект предназначен для обучения и разработки. Соблюдайте условия upstream-платформ и не используйте его для обхода service или rate limits. Вы несёте ответственность за аккаунты, API keys, proxy и сетевую публикацию.

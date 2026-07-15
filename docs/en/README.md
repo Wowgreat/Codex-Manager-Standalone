@@ -90,6 +90,10 @@ pwsh -NoLogo -NoProfile -File scripts/rebuild.ps1 -Bundle nsis -CleanDist -Porta
 
 The installer is placed in the Tauri bundle output. The portable executable is `portable/CodexManager-portable.exe`.
 
+## Acknowledgements
+
+This project continues and customizes the open-source work of [qxcnm/Codex-Manager](https://github.com/qxcnm/Codex-Manager). Credit goes to the original author and all community contributors.
+
 ## Safety and disclaimer
 
 This project is for learning and development. Follow the terms of each upstream platform; do not use it to bypass service or rate limits. You are responsible for your accounts, API keys, proxies, and network exposure.
