@@ -540,7 +540,7 @@
   position: relative;
 }
 
-.mission-panel > * {
+.mission-panel > *:not([data-slot="dialog-close"]) {
   position: relative;
   z-index: 2;
 }

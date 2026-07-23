@@ -35,4 +35,15 @@ test("mission panel decoration does not override dialog fixed positioning", asyn
     /\.glass-card:not\(\[data-slot="dialog-content"\]\)\s*\{\s*position:\s*relative;/,
     "non-dialog glass cards still need a positioning context for their decorative layers",
   );
+
+  assert.match(
+    stylesheet,
+    /\.mission-panel\s*>\s*\*:not\(\[data-slot="dialog-close"\]\)\s*\{\s*position:\s*relative;/,
+    "mission panel content keeps its stacking context without overriding the dialog close button positioning",
+  );
+  assert.doesNotMatch(
+    stylesheet,
+    /\.mission-panel\s*>\s*\*\s*\{\s*position:\s*relative;/,
+    "the dialog close button must retain its absolute top-right positioning",
+  );
 });
