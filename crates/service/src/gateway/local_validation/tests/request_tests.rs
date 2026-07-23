@@ -812,6 +812,52 @@ fn aggregate_passthrough_openai_responses_defaults_omitted_stream_to_sse() {
 }
 
 #[test]
+fn aggregate_passthrough_filters_codex_lite_unsupported_response_tools() {
+    let mut api_key = sample_api_key(
+        crate::apikey_profile::PROTOCOL_OPENAI_COMPAT,
+        None,
+        None,
+        None,
+    );
+    api_key.rotation_strategy = crate::apikey_profile::ROTATION_AGGREGATE_API.to_string();
+    let body = serde_json::json!({
+        "model": "gpt-5.6",
+        "input": "hi",
+        "tools": [
+            { "type": "function", "name": "ping", "parameters": { "type": "object", "properties": {} } },
+            { "type": "custom", "name": "patch" },
+            { "type": "tool_search", "mode": "client" },
+            { "type": "web_search" },
+            { "type": "image_generation" }
+        ]
+    });
+
+    let (rewritten_body, ..) = apply_passthrough_request_overrides(
+        "/v1/responses",
+        serde_json::to_vec(&body).expect("serialize request body"),
+        &api_key,
+        None,
+        None,
+    );
+    let payload: Value = serde_json::from_slice(&rewritten_body).expect("json body");
+    let tools = payload
+        .get("tools")
+        .and_then(Value::as_array)
+        .expect("tools array");
+
+    assert_eq!(tools.len(), 3);
+    assert_eq!(
+        tools[0].get("type").and_then(Value::as_str),
+        Some("function")
+    );
+    assert_eq!(tools[1].get("type").and_then(Value::as_str), Some("custom"));
+    assert_eq!(
+        tools[2].get("type").and_then(Value::as_str),
+        Some("tool_search")
+    );
+}
+
+#[test]
 fn hybrid_passthrough_fallback_body_uses_aggregate_override_shape() {
     let api_key = sample_api_key(
         crate::apikey_profile::PROTOCOL_OPENAI_COMPAT,

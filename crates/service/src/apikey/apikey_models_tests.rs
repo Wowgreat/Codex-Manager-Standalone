@@ -13,12 +13,12 @@ use super::{
     delete_model_catalog_entry, managed_catalog_to_models_response, merge_managed_model_catalog,
     merge_models_response, normalize_managed_model_catalog, normalize_models_response,
     prune_unedited_remote_model_catalog_entries_missing_from_remote,
-    read_managed_model_catalog_from_storage, read_managed_model_routing_from_storage,
-    read_model_options_from_storage, save_managed_model_catalog_with_storage,
-    save_model_options_with_storage, sync_aggregate_api_source_models,
-    sync_aggregate_api_source_models_with_discovery, MODEL_SOURCE_KIND_CUSTOM,
-    MODEL_SOURCE_KIND_REMOTE, PREF_UNLINKED, ROUTING_SOURCE_KIND_AGGREGATE_API,
-    ROUTING_SOURCE_KIND_OPENAI_ACCOUNT,
+    read_managed_model_catalog_from_storage, read_managed_model_catalog_with_source_sync,
+    read_managed_model_routing_from_storage, read_model_options_from_storage,
+    save_managed_model_catalog_with_storage, save_model_options_with_storage,
+    sync_aggregate_api_source_models, sync_aggregate_api_source_models_with_discovery,
+    MODEL_SOURCE_KIND_CUSTOM, MODEL_SOURCE_KIND_REMOTE, PREF_UNLINKED,
+    ROUTING_SOURCE_KIND_AGGREGATE_API, ROUTING_SOURCE_KIND_OPENAI_ACCOUNT,
 };
 use codexmanager_core::rpc::types::{
     ManagedModelCatalogEntry, ManagedModelCatalogResult, ModelInfo, ModelsResponse,
@@ -1424,6 +1424,54 @@ fn aggregate_source_sync_creates_platform_models_and_mappings() {
     assert_eq!(mappings.len(), 1);
     assert_eq!(mappings[0].source_kind, ROUTING_SOURCE_KIND_AGGREGATE_API);
     assert_eq!(mappings[0].source_id, "agg-sync");
+}
+
+#[test]
+fn remote_catalog_refresh_syncs_aggregate_source_models_and_routes() {
+    let storage = Storage::open_in_memory().expect("open storage");
+    storage.init().expect("init storage");
+    insert_test_aggregate_api(&storage, "agg-remote", "active");
+
+    let catalog = read_managed_model_catalog_with_source_sync(
+        &storage,
+        true,
+        || {
+            Ok(ModelsResponse {
+                models: vec![serde_json::from_value(json!({
+                    "slug": "gpt-5.6-sol",
+                    "display_name": "GPT-5.6 Sol",
+                    "supported_in_api": true
+                }))
+                .expect("parse remote model")],
+                extra: BTreeMap::new(),
+            })
+        },
+        |api_id| {
+            assert_eq!(api_id, "agg-remote");
+            Ok(vec!["gpt-5.6-sol".to_string()])
+        },
+    )
+    .expect("refresh catalog");
+
+    assert!(catalog
+        .items
+        .iter()
+        .any(|item| item.model.slug == "gpt-5.6-sol"));
+
+    let source_models = storage
+        .list_model_source_models(Some(ROUTING_SOURCE_KIND_AGGREGATE_API), Some("agg-remote"))
+        .expect("list aggregate source models");
+    assert!(source_models
+        .iter()
+        .any(|item| item.upstream_model == "gpt-5.6-sol"));
+
+    let mappings = storage
+        .list_enabled_model_source_mappings_for_platform("gpt-5.6-sol")
+        .expect("list mappings");
+    assert_eq!(mappings.len(), 1);
+    assert_eq!(mappings[0].source_kind, ROUTING_SOURCE_KIND_AGGREGATE_API);
+    assert_eq!(mappings[0].source_id, "agg-remote");
+    assert_eq!(mappings[0].upstream_model, "gpt-5.6-sol");
 }
 
 #[test]

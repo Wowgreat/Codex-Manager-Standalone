@@ -96,7 +96,25 @@ pub(crate) fn read_managed_model_catalog(
 ) -> Result<ManagedModelCatalogResult, String> {
     let storage =
         storage_helpers::open_storage().ok_or_else(|| "storage unavailable".to_string())?;
-    let cached_catalog = read_managed_model_catalog_from_storage(&storage)?;
+    read_managed_model_catalog_with_source_sync(
+        &storage,
+        refresh_remote,
+        gateway::fetch_models_for_picker,
+        crate::discover_aggregate_api_models,
+    )
+}
+
+pub(crate) fn read_managed_model_catalog_with_source_sync<F, D>(
+    storage: &Storage,
+    refresh_remote: bool,
+    fetch_remote_models: F,
+    discover_aggregate_models: D,
+) -> Result<ManagedModelCatalogResult, String>
+where
+    F: FnOnce() -> Result<ModelsResponse, String>,
+    D: FnMut(&str) -> Result<Vec<String>, String>,
+{
+    let cached_catalog = read_managed_model_catalog_from_storage(storage)?;
     let should_fetch_remote = refresh_remote
         || (!managed_catalog_has_catalog_text_model(&cached_catalog)
             && crate::app_settings::current_gateway_model_catalog_auto_remote_fetch());
@@ -104,7 +122,7 @@ pub(crate) fn read_managed_model_catalog(
         return Ok(cached_catalog);
     }
 
-    match gateway::fetch_models_for_picker() {
+    match fetch_remote_models() {
         Ok(models) => {
             let models = normalize_models_response(models);
             if !models_response_has_catalog_text_model(&models) {
@@ -121,7 +139,11 @@ pub(crate) fn read_managed_model_catalog(
             }
             let merged_catalog = merge_managed_model_catalog(cached_catalog.clone(), models);
             if !merged_catalog.items.is_empty() {
-                let _ = save_managed_model_catalog_with_storage(&storage, &merged_catalog);
+                save_managed_model_catalog_with_storage(storage, &merged_catalog)?;
+                sync_model_sources_after_remote_catalog_refresh(
+                    storage,
+                    discover_aggregate_models,
+                )?;
             }
             Ok(merged_catalog)
         }
@@ -136,6 +158,17 @@ pub(crate) fn read_managed_model_catalog(
             }
         }
     }
+}
+
+fn sync_model_sources_after_remote_catalog_refresh<D>(
+    storage: &Storage,
+    discover_aggregate_models: D,
+) -> Result<(), String>
+where
+    D: FnMut(&str) -> Result<Vec<String>, String>,
+{
+    sync_openai_account_source_models_with_options(storage, None, false)?;
+    sync_aggregate_api_source_models_with_discovery(storage, None, discover_aggregate_models)
 }
 
 fn model_is_catalog_text_model(model: &ModelInfo) -> bool {

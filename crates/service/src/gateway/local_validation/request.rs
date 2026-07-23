@@ -1618,10 +1618,16 @@ fn apply_passthrough_request_overrides(
             None,
             true,
         );
-    let rewritten_body = super::super::normalize_official_responses_http_body(
+    let mut rewritten_body = super::super::normalize_official_responses_http_body(
         transport_request_path(path).as_str(),
         rewritten_body,
     );
+    if api_key.rotation_strategy == ROTATION_AGGREGATE_API {
+        rewritten_body = super::super::filter_codex_lite_supported_response_tools(
+            transport_request_path(path).as_str(),
+            rewritten_body,
+        );
+    }
     let request_meta = super::super::parse_request_metadata(&rewritten_body);
     (
         rewritten_body,

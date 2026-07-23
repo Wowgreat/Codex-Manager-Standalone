@@ -344,6 +344,64 @@ fn ensure_tools_list(path: &str, obj: &mut Map<String, Value>) -> bool {
     }
 }
 
+fn is_codex_lite_supported_tool(tool: &Value) -> bool {
+    matches!(
+        tool.get("type").and_then(Value::as_str),
+        Some("function" | "custom" | "tool_search")
+    )
+}
+
+pub(crate) fn retain_codex_lite_supported_tools(path: &str, obj: &mut Map<String, Value>) -> bool {
+    if !is_responses_path(path) {
+        return false;
+    }
+    let selected_tool_choice =
+        obj.get("tool_choice")
+            .and_then(Value::as_object)
+            .and_then(|choice| {
+                Some((
+                    choice.get("type").and_then(Value::as_str)?.to_string(),
+                    choice.get("name").and_then(Value::as_str)?.to_string(),
+                ))
+            });
+    let Some(tools) = obj.get_mut("tools").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    let original_len = tools.len();
+    tools.retain(is_codex_lite_supported_tool);
+    let changed = tools.len() != original_len;
+
+    if changed {
+        if let Some((choice_type, choice_name)) = selected_tool_choice {
+            let choice_still_available = tools.iter().any(|tool| {
+                tool.get("type").and_then(Value::as_str) == Some(choice_type.as_str())
+                    && tool.get("name").and_then(Value::as_str) == Some(choice_name.as_str())
+            });
+            if !choice_still_available {
+                obj.insert("tool_choice".to_string(), Value::String("auto".to_string()));
+            }
+        }
+    }
+
+    changed
+}
+
+pub(crate) fn filter_codex_lite_supported_response_tools(path: &str, body: Vec<u8>) -> Vec<u8> {
+    if !is_responses_path(path) {
+        return body;
+    }
+    let Ok(mut payload) = serde_json::from_slice::<Value>(&body) else {
+        return body;
+    };
+    let Some(obj) = payload.as_object_mut() else {
+        return body;
+    };
+    if !retain_codex_lite_supported_tools(path, obj) {
+        return body;
+    }
+    serde_json::to_vec(&payload).unwrap_or(body)
+}
+
 fn should_skip_image_generation_tool_for_model(obj: &Map<String, Value>) -> bool {
     obj.get("model")
         .and_then(Value::as_str)
