@@ -451,9 +451,12 @@
   background: var(--glass-surface);
   border: 1px solid color-mix(in srgb, var(--glass-border) 86%, transparent);
   box-shadow: var(--glass-shadow);
-  position: relative;
   isolation: isolate;
   transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.glass-card:not([data-slot="dialog-content"]) {
+  position: relative;
 }
 
 .glass-card::before {
@@ -530,8 +533,11 @@
 }
 
 .mission-panel {
-  position: relative;
   overflow: hidden;
+}
+
+.mission-panel:not([data-slot="dialog-content"]) {
+  position: relative;
 }
 
 .mission-panel > * {
